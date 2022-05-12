@@ -6,20 +6,24 @@ def get_connection(db, user=user, host=host, password=password):
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
 def get_titanic_data():
-    filename = "titanic.csv"
-
-    if os.path.isfile(filename):
-        return pd.read_csv(filename)
+    '''
+    This function reads in titanic data from Codeup database, writes data to
+    a csv file if a local file does not exist, and returns a df.
+    '''
+    if os.path.isfile('titanic_df.csv'):
+        
+        # If csv file exists, read in data from csv file.
+        df = pd.read_csv('titanic_df.csv', index_col=0)
+        
     else:
-        query = ('''
-        SELECT *
-        FROM passengers        
-        ''',get_connection('titanic_db'))
-        url = get_db_url('titanic_db')
-        df = pd.read_sql(query, url)
-        df.to_csv(filename)
-
-        return df  
+        
+        # Read fresh data from db into a DataFrame.
+        df = new_titanic_data()
+        
+        # Write DataFrame to a csv file.
+        df.to_csv('titanic_df.csv')
+        
+    return df
 
 def get_iris_data():
     filename = "iris.csv"

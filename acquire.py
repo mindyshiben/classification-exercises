@@ -1,29 +1,18 @@
 import pandas as pd
+import numpy as np
 import os
+from env import get_db_url
 
-
-def get_connection(db, user=user, host=host, password=password):
-    return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
 def get_titanic_data():
-    '''
-    This function reads in titanic data from Codeup database, writes data to
-    a csv file if a local file does not exist, and returns a df.
-    '''
-    if os.path.isfile('titanic_df.csv'):
-        
-        # If csv file exists, read in data from csv file.
-        df = pd.read_csv('titanic_df.csv', index_col=0)
-        
+    filename = "titanic.csv"
+
+    if os.path.isfile(filename):
+        return pd.read_csv(filename)
     else:
-        
-        # Read fresh data from db into a DataFrame.
-        df = new_titanic_data()
-        
-        # Write DataFrame to a csv file.
-        df.to_csv('titanic_df.csv')
-        
-    return df
+        df = pd.read_sql('SELECT * FROM passengers', get_db_url('titanic_db'))
+        df.to_csv(filename)
+        return df  
 
 def get_iris_data():
     filename = "iris.csv"
@@ -31,17 +20,15 @@ def get_iris_data():
     if os.path.isfile(filename):
         return pd.read_csv(filename)
     else:
-        query = '''
+        sql = """
         SELECT *
         FROM measurements
-        JOIN
-        species USING(species_id);      
-        '''
-        url = get_db_url('iris_db')
-        df = pd.read_sql(query, url)
+        JOIN species USING(species_id)
+        """
+        df = pd.read_sql(sql, get_db_url('iris_db'))
         df.to_csv(filename)
 
-        return df  
+        return df 
 
 def get_telco_data():
     filename = "telco.csv"
@@ -49,16 +36,14 @@ def get_telco_data():
     if os.path.isfile(filename):
         return pd.read_csv(filename)
     else:
-        query = '''
-        SELECT * 
+        sql = """
+        SELECT *
         FROM customers
-        JOIN contract_types USING (contract_type_id)
-        JOIN payment_types USING (payment_type_id)
-        JOIN internet_service_types USING (internet_service_type_id)
-        JOIN customer_payments USING(customer_id) ;     
-        '''
-        url = get_db_url('telco_churn')
-        df = pd.read_sql(query, url)
+        JOIN internet_service_types USING(internet_service_type_id)
+        JOIN payment_types USING(payment_type_id)
+        JOIN contract_types USING(contract_type_id)
+        """
+        df = pd.read_sql(sql, get_db_url('telco_churn'))
         df.to_csv(filename)
 
-        return df  
+        return df 

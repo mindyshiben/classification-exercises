@@ -1,6 +1,9 @@
 import pandas as pd
 import os
-from env import get_db_url
+
+
+def get_connection(db, user=user, host=host, password=password):
+    return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
 def get_titanic_data():
     filename = "titanic.csv"
@@ -8,11 +11,11 @@ def get_titanic_data():
     if os.path.isfile(filename):
         return pd.read_csv(filename)
     else:
-        query = '''
+        query = ('''
         SELECT *
-        FROM passengers;        
-        '''
-        url = env.get_db_url('titanic_db')
+        FROM passengers        
+        ''',get_connection('titanic_db'))
+        url = get_db_url('titanic_db')
         df = pd.read_sql(query, url)
         df.to_csv(filename)
 
@@ -30,7 +33,7 @@ def get_iris_data():
         JOIN
         species USING(species_id);      
         '''
-        url = env.get_db_url('iris_db')
+        url = get_db_url('iris_db')
         df = pd.read_sql(query, url)
         df.to_csv(filename)
 
@@ -50,7 +53,7 @@ def get_telco_data():
         JOIN internet_service_types USING (internet_service_type_id)
         JOIN customer_payments USING(customer_id) ;     
         '''
-        url = env.get_db_url('telco_churn')
+        url = get_db_url('telco_churn')
         df = pd.read_sql(query, url)
         df.to_csv(filename)
 
